@@ -1,13 +1,15 @@
 # Frontend Integration Guide
 
 ## Base URL
+
 ```
-https://[your-vercel-deployment-url]
+https://praktikum-backendwir.vercel.app/
 ```
 
 ## Authentication
 
 ### 1. Register a New User
+
 ```typescript
 interface RegisterRequest {
   email: string;
@@ -35,6 +37,7 @@ const data = await response.json();
 ```
 
 ### 2. Login
+
 ```typescript
 interface LoginRequest {
   email: string;
@@ -57,6 +60,7 @@ const data = await response.json();
 ```
 
 ### 3. Using Authentication Token
+
 ```typescript
 // Add this header to all authenticated requests
 const headers = {
@@ -70,6 +74,7 @@ const headers = {
 ### Periods
 
 1. Get All Periods
+
 ```typescript
 const response = await fetch(`${BASE_URL}/periods`, {
   headers
@@ -78,6 +83,7 @@ const periods = await response.json();
 ```
 
 2. Create Period (Admin only)
+
 ```typescript
 interface CreatePeriodRequest {
   name: string;
@@ -99,6 +105,7 @@ const response = await fetch(`${BASE_URL}/periods`, {
 ### Praktikum
 
 1. Get All Praktikum Sessions
+
 ```typescript
 const response = await fetch(`${BASE_URL}/praktikum`, {
   headers
@@ -107,6 +114,7 @@ const praktikums = await response.json();
 ```
 
 2. Schedule Praktikum (Admin only)
+
 ```typescript
 interface CreatePraktikumRequest {
   name?: string;
@@ -130,6 +138,7 @@ const response = await fetch(`${BASE_URL}/praktikum/pertemuan/${pertemuanId}`, {
 ### Asistensi
 
 1. Record Attendance
+
 ```typescript
 interface CreateAsistensiRequest {
   userId: string;
@@ -149,6 +158,7 @@ const response = await fetch(`${BASE_URL}/asistensi/pertemuan/${pertemuanId}`, {
 ```
 
 2. Get User's Asistensi Records
+
 ```typescript
 const response = await fetch(`${BASE_URL}/asistensi/user/${userId}`, {
   headers
@@ -159,6 +169,7 @@ const asistensiRecords = await response.json();
 ### Laporan
 
 1. Submit Laporan
+
 ```typescript
 const response = await fetch(`${BASE_URL}/laporan/pertemuan/${pertemuanId}`, {
   method: 'POST',
@@ -170,6 +181,7 @@ const response = await fetch(`${BASE_URL}/laporan/pertemuan/${pertemuanId}`, {
 ```
 
 2. Get Upcoming Deadlines
+
 ```typescript
 const response = await fetch(`${BASE_URL}/laporan/deadlines/${userId}`, {
   headers
@@ -180,6 +192,7 @@ const deadlines = await response.json();
 ### Nilai
 
 1. Input/Update Nilai
+
 ```typescript
 interface CreateNilaiRequest {
   userId: string;
@@ -201,6 +214,7 @@ const response = await fetch(`${BASE_URL}/nilai/pertemuan/${pertemuanId}`, {
 ```
 
 2. Get User's Nilai
+
 ```typescript
 const response = await fetch(`${BASE_URL}/nilai/user/${userId}`, {
   headers
@@ -211,6 +225,7 @@ const nilaiRecords = await response.json();
 ## Error Handling
 
 The API returns error responses in this format:
+
 ```typescript
 interface ErrorResponse {
   error: string;
@@ -236,11 +251,13 @@ try {
 ## TypeScript Integration
 
 1. Install types (if you're using TypeScript):
+
 ```bash
 npm install @types/express @types/express-serve-static-core
 ```
 
 2. Import types from the backend:
+
 ```typescript
 import { 
   User,
@@ -322,26 +339,27 @@ export default PeriodList;
 ## Best Practices
 
 1. **Token Management**
+
    - Store the JWT token securely (e.g., in HttpOnly cookies or localStorage)
    - Implement token refresh mechanism if needed
    - Clear token on logout
-
 2. **Error Handling**
+
    - Implement global error handling
    - Handle network errors gracefully
    - Show appropriate error messages to users
-
 3. **Loading States**
+
    - Show loading indicators during API calls
    - Implement skeleton loading where appropriate
    - Handle loading states in UI components
-
 4. **Data Caching**
+
    - Consider implementing client-side caching
    - Use React Query or SWR for data fetching
    - Cache frequently accessed data
-
 5. **Type Safety**
+
    - Use TypeScript for better type safety
    - Share types between frontend and backend
    - Implement proper type checking
@@ -349,20 +367,21 @@ export default PeriodList;
 ## Security Considerations
 
 1. **CORS**
+
    - The backend is configured to accept requests from all origins
    - In production, configure specific allowed origins
-
 2. **Token Security**
+
    - Never store sensitive data in localStorage
    - Consider using HttpOnly cookies for tokens
    - Implement token refresh mechanism
-
 3. **Input Validation**
+
    - Validate all user inputs before sending to API
    - Sanitize data to prevent XSS attacks
    - Handle file uploads securely
-
 4. **Error Messages**
+
    - Don't expose sensitive information in error messages
    - Log errors server-side for debugging
-   - Show user-friendly error messages 
+   - Show user-friendly error messages

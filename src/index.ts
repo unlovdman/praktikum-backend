@@ -3,6 +3,7 @@ import cors from 'cors'
 import { PrismaClient } from '@prisma/client'
 import * as dotenv from 'dotenv'
 import path from 'path'
+import swaggerUi from 'swagger-ui-express'
 
 // Routes
 import { authRouter } from './routes/auth'
@@ -179,6 +180,294 @@ const swaggerDocument = {
           }
         }
       }
+    },
+    '/periods': {
+      get: {
+        tags: ['Period'],
+        summary: 'Get all periods',
+        responses: {
+          '200': {
+            description: 'List of all periods',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      id: { type: 'string' },
+                      name: { type: 'string' },
+                      startDate: { type: 'string', format: 'date-time' },
+                      endDate: { type: 'string', format: 'date-time' },
+                      createdAt: { type: 'string', format: 'date-time' },
+                      updatedAt: { type: 'string', format: 'date-time' }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      post: {
+        tags: ['Period'],
+        summary: 'Create a new period',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['name', 'startDate', 'endDate'],
+                properties: {
+                  name: { type: 'string' },
+                  startDate: { type: 'string', format: 'date-time' },
+                  endDate: { type: 'string', format: 'date-time' }
+                }
+              }
+            }
+          }
+        },
+        responses: {
+          '201': {
+            description: 'Period created successfully'
+          }
+        }
+      }
+    },
+    '/praktikum': {
+      get: {
+        tags: ['Praktikum'],
+        summary: 'Get all praktikum sessions',
+        responses: {
+          '200': {
+            description: 'List of all praktikum sessions',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      id: { type: 'string' },
+                      name: { type: 'string' },
+                      description: { type: 'string' },
+                      date: { type: 'string', format: 'date-time' },
+                      googleFormUrl: { type: 'string' },
+                      pertemuanId: { type: 'string' }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    '/praktikum/pertemuan/{pertemuanId}': {
+      post: {
+        tags: ['Praktikum'],
+        summary: 'Create a praktikum session for a pertemuan',
+        parameters: [
+          {
+            name: 'pertemuanId',
+            in: 'path',
+            required: true,
+            schema: {
+              type: 'string'
+            }
+          }
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['name', 'date', 'googleFormUrl'],
+                properties: {
+                  name: { type: 'string' },
+                  description: { type: 'string' },
+                  date: { type: 'string', format: 'date-time' },
+                  googleFormUrl: { type: 'string' }
+                }
+              }
+            }
+          }
+        },
+        responses: {
+          '201': {
+            description: 'Praktikum session created successfully'
+          }
+        }
+      }
+    },
+    '/asistensi/pertemuan/{pertemuanId}': {
+      get: {
+        tags: ['Asistensi'],
+        summary: 'Get all asistensi records for a pertemuan',
+        parameters: [
+          {
+            name: 'pertemuanId',
+            in: 'path',
+            required: true,
+            schema: {
+              type: 'string'
+            }
+          }
+        ],
+        responses: {
+          '200': {
+            description: 'List of asistensi records'
+          }
+        }
+      },
+      post: {
+        tags: ['Asistensi'],
+        summary: 'Record asistensi for a pertemuan',
+        parameters: [
+          {
+            name: 'pertemuanId',
+            in: 'path',
+            required: true,
+            schema: {
+              type: 'string'
+            }
+          }
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['userId', 'attendance'],
+                properties: {
+                  userId: { type: 'string' },
+                  attendance: { type: 'boolean' },
+                  score: { type: 'number' }
+                }
+              }
+            }
+          }
+        },
+        responses: {
+          '201': {
+            description: 'Asistensi recorded successfully'
+          }
+        }
+      }
+    },
+    '/laporan/pertemuan/{pertemuanId}': {
+      get: {
+        tags: ['Laporan'],
+        summary: 'Get all laporan records for a pertemuan',
+        parameters: [
+          {
+            name: 'pertemuanId',
+            in: 'path',
+            required: true,
+            schema: {
+              type: 'string'
+            }
+          }
+        ],
+        responses: {
+          '200': {
+            description: 'List of laporan records'
+          }
+        }
+      },
+      post: {
+        tags: ['Laporan'],
+        summary: 'Submit laporan for a pertemuan',
+        parameters: [
+          {
+            name: 'pertemuanId',
+            in: 'path',
+            required: true,
+            schema: {
+              type: 'string'
+            }
+          }
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['userId'],
+                properties: {
+                  userId: { type: 'string' }
+                }
+              }
+            }
+          }
+        },
+        responses: {
+          '201': {
+            description: 'Laporan submitted successfully'
+          }
+        }
+      }
+    },
+    '/nilai/pertemuan/{pertemuanId}': {
+      get: {
+        tags: ['Nilai'],
+        summary: 'Get all nilai records for a pertemuan',
+        parameters: [
+          {
+            name: 'pertemuanId',
+            in: 'path',
+            required: true,
+            schema: {
+              type: 'string'
+            }
+          }
+        ],
+        responses: {
+          '200': {
+            description: 'List of nilai records'
+          }
+        }
+      },
+      post: {
+        tags: ['Nilai'],
+        summary: 'Input or update nilai for a pertemuan',
+        parameters: [
+          {
+            name: 'pertemuanId',
+            in: 'path',
+            required: true,
+            schema: {
+              type: 'string'
+            }
+          }
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['userId'],
+                properties: {
+                  userId: { type: 'string' },
+                  praktikumScore: { type: 'number' },
+                  asistensiScore: { type: 'number' },
+                  laporanScore: { type: 'number' }
+                }
+              }
+            }
+          }
+        },
+        responses: {
+          '201': {
+            description: 'Nilai recorded successfully'
+          }
+        }
+      }
     }
   }
 }
@@ -190,47 +479,14 @@ app.get('/swagger.json', (req, res) => {
 })
 
 // Serve Swagger UI
-app.get('/swagger', (req, res) => {
-  const html = `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>Praktikum Management API Documentation</title>
-        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css">
-        <style>
-            body { margin: 0; }
-            .swagger-ui .topbar { display: none; }
-        </style>
-    </head>
-    <body>
-        <div id="swagger-ui"></div>
-        <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-standalone-preset.js"></script>
-        <script>
-            window.onload = function() {
-                window.ui = SwaggerUIBundle({
-                    url: '/swagger.json',
-                    dom_id: '#swagger-ui',
-                    deepLinking: true,
-                    presets: [
-                        SwaggerUIBundle.presets.apis,
-                        SwaggerUIStandalonePreset
-                    ],
-                    plugins: [
-                        SwaggerUIBundle.plugins.DownloadUrl
-                    ],
-                    layout: "StandaloneLayout",
-                    persistAuthorization: true
-                });
-            };
-        </script>
-    </body>
-    </html>
-  `
-  res.setHeader('Content-Type', 'text/html')
-  res.send(html)
-})
+app.use('/swagger', swaggerUi.serve)
+app.get('/swagger', swaggerUi.setup(swaggerDocument, {
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: "Praktikum Management API Documentation",
+  swaggerOptions: {
+    persistAuthorization: true
+  }
+}))
 
 // Inject Prisma into request
 app.use((req: any, res, next) => {
