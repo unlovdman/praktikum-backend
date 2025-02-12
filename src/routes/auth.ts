@@ -12,7 +12,7 @@ const prisma = new PrismaClient({
   log: ['query', 'info', 'warn', 'error'],
   datasources: {
     db: {
-      url: "postgresql://postgres:Ymp1nkx0c97xnp6T@db.crtwwcwiokhxzjcuvkwd.supabase.co:5432/postgres?sslmode=require&connection_limit=1"
+      url: "postgresql://postgres:Ymp1nkx0c97xnp6T@db.crtwwcwiokhxzjcuvkwd.supabase.co:5432/postgres?pgbouncer=true&connection_limit=1&sslmode=require&pool_timeout=0"
     }
   }
 });
@@ -20,7 +20,10 @@ const prisma = new PrismaClient({
 // Ensure database connection on startup
 prisma.$connect()
   .then(() => console.log('Auth route: Database connection successful'))
-  .catch((error) => console.error('Auth route: Database connection error:', error));
+  .catch((error) => {
+    console.error('Auth route: Database connection error:', error);
+    console.error('Connection URL being used:', prisma.$datasourceUrl);
+  });
 
 // Register endpoint
 router.post('/register', async (req: TypedRequestBody<RegisterRequest>, res: Response) => {
