@@ -1,7 +1,6 @@
 import express from 'express'
 import cors from 'cors'
 import { PrismaClient } from '@prisma/client'
-import swaggerUi from 'swagger-ui-express'
 import * as dotenv from 'dotenv'
 import path from 'path'
 
@@ -184,21 +183,53 @@ const swaggerDocument = {
   }
 }
 
-// Swagger setup
-app.use('/swagger', swaggerUi.serve)
-app.use('/swagger', swaggerUi.setup(swaggerDocument, {
-  customCss: '.swagger-ui .topbar { display: none }',
-  customSiteTitle: "Praktikum Management API Documentation",
-  swaggerOptions: {
-    url: '/swagger.json',
-    persistAuthorization: true
-  }
-}))
-
 // Serve swagger.json
 app.get('/swagger.json', (req, res) => {
   res.setHeader('Content-Type', 'application/json')
   res.send(swaggerDocument)
+})
+
+// Serve Swagger UI
+app.get('/swagger', (req, res) => {
+  const html = `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Praktikum Management API Documentation</title>
+        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css">
+        <style>
+            body { margin: 0; }
+            .swagger-ui .topbar { display: none; }
+        </style>
+    </head>
+    <body>
+        <div id="swagger-ui"></div>
+        <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-standalone-preset.js"></script>
+        <script>
+            window.onload = function() {
+                window.ui = SwaggerUIBundle({
+                    url: '/swagger.json',
+                    dom_id: '#swagger-ui',
+                    deepLinking: true,
+                    presets: [
+                        SwaggerUIBundle.presets.apis,
+                        SwaggerUIStandalonePreset
+                    ],
+                    plugins: [
+                        SwaggerUIBundle.plugins.DownloadUrl
+                    ],
+                    layout: "StandaloneLayout",
+                    persistAuthorization: true
+                });
+            };
+        </script>
+    </body>
+    </html>
+  `
+  res.setHeader('Content-Type', 'text/html')
+  res.send(html)
 })
 
 // Inject Prisma into request
