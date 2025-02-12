@@ -1,26 +1,15 @@
 import { Router, Response } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { Role, PrismaClient } from '@prisma/client';
+import { Role, PrismaClient, Prisma } from '@prisma/client';
 import { TypedRequestBody } from '../types/express';
 import { RegisterRequest, LoginRequest, User } from '../types/models';
 
 const router = Router();
 
-// Create a new PrismaClient instance with specific configuration
+// Create a new PrismaClient instance with logging enabled
 const prisma = new PrismaClient({
-  log: ['query', 'info', 'warn', 'error'],
-  datasources: {
-    db: {
-      url: process.env.DATABASE_URL
-    }
-  },
-  // Add Prisma Client specific configurations
-  __internal: {
-    engine: {
-      binaryTarget: ['native', 'debian-openssl-1.1.x'].includes(process.env.VERCEL_REGION || '') ? 'debian-openssl-1.1.x' : 'native'
-    }
-  }
+  log: ['query', 'info', 'warn', 'error']
 });
 
 // Register endpoint
@@ -78,7 +67,8 @@ router.post('/login', async (req: TypedRequestBody<LoginRequest>, res: Response)
     try {
       await client.$connect();
       console.log('Database connection successful');
-    } catch (dbError) {
+    } catch (error) {
+      const dbError = error as Error;
       console.error('Database connection error:', dbError);
       return res.status(500).json({ error: 'Database connection failed', details: dbError.message });
     }
@@ -97,7 +87,8 @@ router.post('/login', async (req: TypedRequestBody<LoginRequest>, res: Response)
         }
       });
       console.log('User query result:', user ? 'User found' : 'User not found');
-    } catch (queryError) {
+    } catch (error) {
+      const queryError = error as Prisma.PrismaClientKnownRequestError;
       console.error('User query error:', queryError);
       return res.status(500).json({ error: 'Error finding user', details: queryError.message });
     }
@@ -114,7 +105,8 @@ router.post('/login', async (req: TypedRequestBody<LoginRequest>, res: Response)
     try {
       validPassword = await bcrypt.compare(password, user.password);
       console.log('Password validation result:', validPassword);
-    } catch (bcryptError) {
+    } catch (error) {
+      const bcryptError = error as Error;
       console.error('bcrypt error:', bcryptError);
       return res.status(500).json({ error: 'Error validating password', details: bcryptError.message });
     }
@@ -139,18 +131,21 @@ router.post('/login', async (req: TypedRequestBody<LoginRequest>, res: Response)
         user: userWithoutPassword,
         token
       });
-    } catch (jwtError) {
+    } catch (error) {
+      const jwtError = error as Error;
       console.error('JWT error:', jwtError);
       return res.status(500).json({ error: 'Error generating token', details: jwtError.message });
     }
   } catch (error) {
-    console.error('Login error:', error);
-    res.status(500).json({ error: 'Internal server error', details: error.message });
+    const serverError = error as Error;
+    console.error('Login error:', serverError);
+    res.status(500).json({ error: 'Internal server error', details: serverError.message });
   } finally {
     try {
       await client.$disconnect();
       console.log('Database disconnected successfully');
-    } catch (disconnectError) {
+    } catch (error) {
+      const disconnectError = error as Error;
       console.error('Error disconnecting from database:', disconnectError);
     }
   }
