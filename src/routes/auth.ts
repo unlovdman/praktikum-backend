@@ -22,7 +22,6 @@ prisma.$connect()
   .then(() => console.log('Auth route: Database connection successful'))
   .catch((error) => {
     console.error('Auth route: Database connection error:', error);
-    console.error('Connection URL:', prisma._engineConfig?.datasources?.db?.url);
   });
 
 // Register endpoint
