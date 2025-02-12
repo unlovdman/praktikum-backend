@@ -1,18 +1,34 @@
 import { Router, Response } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { Role } from '@prisma/client';
+import { Role, PrismaClient } from '@prisma/client';
 import { TypedRequestBody } from '../types/express';
 import { RegisterRequest, LoginRequest, User } from '../types/models';
 
 const router = Router();
+
+// Create a new PrismaClient instance with specific configuration
+const prisma = new PrismaClient({
+  log: ['query', 'info', 'warn', 'error'],
+  datasources: {
+    db: {
+      url: process.env.DATABASE_URL
+    }
+  },
+  // Add Prisma Client specific configurations
+  __internal: {
+    engine: {
+      binaryTarget: ['native', 'debian-openssl-1.1.x'].includes(process.env.VERCEL_REGION || '') ? 'debian-openssl-1.1.x' : 'native'
+    }
+  }
+});
 
 // Register endpoint
 router.post('/register', async (req: TypedRequestBody<RegisterRequest>, res: Response) => {
   try {
     const { name, email, password, role } = req.body;
 
-    const existingUser = await req.db.user.findUnique({
+    const existingUser = await prisma.user.findUnique({
       where: { email }
     });
 
@@ -22,7 +38,7 @@ router.post('/register', async (req: TypedRequestBody<RegisterRequest>, res: Res
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user = await req.db.user.create({
+    const user = await prisma.user.create({
       data: {
         name,
         email,
@@ -33,7 +49,7 @@ router.post('/register', async (req: TypedRequestBody<RegisterRequest>, res: Res
 
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role, name: user.name },
-      process.env.JWT_SECRET || 'secret',
+      process.env.JWT_SECRET || '253dacd5af0b3612ea1d45420d494ed260a9dcb93aaf9b8ac8aa1de2c51a5f6e',
       { expiresIn: '1d' }
     );
 
@@ -51,23 +67,26 @@ router.post('/register', async (req: TypedRequestBody<RegisterRequest>, res: Res
 
 // Login endpoint
 router.post('/login', async (req: TypedRequestBody<LoginRequest>, res: Response) => {
+  const client = prisma;
+  console.log('Starting login process...');
+  
   try {
     console.log('Login attempt for:', req.body.email);
     const { email, password } = req.body;
 
     // Test database connection
     try {
-      await req.db.$connect();
+      await client.$connect();
       console.log('Database connection successful');
     } catch (dbError) {
       console.error('Database connection error:', dbError);
-      return res.status(500).json({ error: 'Database connection failed' });
+      return res.status(500).json({ error: 'Database connection failed', details: dbError.message });
     }
 
     // Find user
     let user;
     try {
-      user = await req.db.user.findUnique({
+      user = await client.user.findUnique({
         where: { email },
         select: {
           id: true,
@@ -80,7 +99,7 @@ router.post('/login', async (req: TypedRequestBody<LoginRequest>, res: Response)
       console.log('User query result:', user ? 'User found' : 'User not found');
     } catch (queryError) {
       console.error('User query error:', queryError);
-      return res.status(500).json({ error: 'Error finding user' });
+      return res.status(500).json({ error: 'Error finding user', details: queryError.message });
     }
 
     if (!user) {
@@ -97,7 +116,7 @@ router.post('/login', async (req: TypedRequestBody<LoginRequest>, res: Response)
       console.log('Password validation result:', validPassword);
     } catch (bcryptError) {
       console.error('bcrypt error:', bcryptError);
-      return res.status(500).json({ error: 'Error validating password' });
+      return res.status(500).json({ error: 'Error validating password', details: bcryptError.message });
     }
 
     if (!validPassword) {
@@ -122,11 +141,18 @@ router.post('/login', async (req: TypedRequestBody<LoginRequest>, res: Response)
       });
     } catch (jwtError) {
       console.error('JWT error:', jwtError);
-      return res.status(500).json({ error: 'Error generating token' });
+      return res.status(500).json({ error: 'Error generating token', details: jwtError.message });
     }
   } catch (error) {
     console.error('Login error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: 'Internal server error', details: error.message });
+  } finally {
+    try {
+      await client.$disconnect();
+      console.log('Database disconnected successfully');
+    } catch (disconnectError) {
+      console.error('Error disconnecting from database:', disconnectError);
+    }
   }
 });
 

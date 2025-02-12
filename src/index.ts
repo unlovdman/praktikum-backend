@@ -15,7 +15,22 @@ import { periodRouter } from './routes/period'
 
 dotenv.config()
 
-const prisma = new PrismaClient()
+// Create a new PrismaClient instance with specific configuration
+const prisma = new PrismaClient({
+  log: ['query', 'info', 'warn', 'error'],
+  datasources: {
+    db: {
+      url: process.env.DATABASE_URL
+    }
+  },
+  // Add Prisma Client specific configurations
+  __internal: {
+    engine: {
+      binaryTarget: ['native', 'debian-openssl-1.1.x'].includes(process.env.VERCEL_REGION || '') ? 'debian-openssl-1.1.x' : 'native'
+    }
+  }
+})
+
 const app = express()
 
 // Middleware
