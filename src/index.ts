@@ -3,6 +3,7 @@ import cors from 'cors'
 import { PrismaClient } from '@prisma/client'
 import swaggerUi from 'swagger-ui-express'
 import * as dotenv from 'dotenv'
+import path from 'path'
 
 // Routes
 import { authRouter } from './routes/auth'
@@ -185,10 +186,20 @@ const swaggerDocument = {
 
 // Swagger setup
 app.use('/swagger', swaggerUi.serve)
-app.get('/swagger', swaggerUi.setup(swaggerDocument, {
+app.use('/swagger', swaggerUi.setup(swaggerDocument, {
   customCss: '.swagger-ui .topbar { display: none }',
-  customSiteTitle: "Praktikum Management API Documentation"
+  customSiteTitle: "Praktikum Management API Documentation",
+  swaggerOptions: {
+    url: '/swagger.json',
+    persistAuthorization: true
+  }
 }))
+
+// Serve swagger.json
+app.get('/swagger.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json')
+  res.send(swaggerDocument)
+})
 
 // Inject Prisma into request
 app.use((req: any, res, next) => {
