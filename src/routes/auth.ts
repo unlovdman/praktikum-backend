@@ -9,7 +9,8 @@ const router = Router();
 
 // Create a new PrismaClient instance with logging enabled
 const prisma = new PrismaClient({
-  log: ['query', 'info', 'warn', 'error']
+  log: ['query', 'info', 'warn', 'error'],
+  datasourceUrl: process.env.DATABASE_URL
 });
 
 // Ensure database connection on startup
@@ -20,7 +21,17 @@ prisma.$connect()
 // Register endpoint
 router.post('/register', async (req: TypedRequestBody<RegisterRequest>, res: Response) => {
   try {
+    console.log('Starting registration process...');
     const { name, email, password, role } = req.body;
+
+    // Test connection before proceeding
+    try {
+      await prisma.$connect();
+      console.log('Database connected for registration');
+    } catch (error) {
+      console.error('Database connection error during registration:', error);
+      return res.status(500).json({ error: 'Database connection failed', details: error instanceof Error ? error.message : 'Unknown error' });
+    }
 
     const existingUser = await prisma.user.findUnique({
       where: { email }
@@ -55,7 +66,7 @@ router.post('/register', async (req: TypedRequestBody<RegisterRequest>, res: Res
     });
   } catch (error) {
     console.error('Register error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' });
   }
 });
 
@@ -66,6 +77,15 @@ router.post('/login', async (req: TypedRequestBody<LoginRequest>, res: Response)
   try {
     console.log('Login attempt for:', req.body.email);
     const { email, password } = req.body;
+
+    // Test connection before proceeding
+    try {
+      await prisma.$connect();
+      console.log('Database connected for login');
+    } catch (error) {
+      console.error('Database connection error during login:', error);
+      return res.status(500).json({ error: 'Database connection failed', details: error instanceof Error ? error.message : 'Unknown error' });
+    }
 
     // Find user
     let user;
@@ -82,9 +102,8 @@ router.post('/login', async (req: TypedRequestBody<LoginRequest>, res: Response)
       });
       console.log('User query result:', user ? 'User found' : 'User not found');
     } catch (error) {
-      const queryError = error as Prisma.PrismaClientKnownRequestError;
-      console.error('User query error:', queryError);
-      return res.status(500).json({ error: 'Error finding user', details: queryError.message });
+      console.error('User query error:', error);
+      return res.status(500).json({ error: 'Error finding user', details: error instanceof Error ? error.message : 'Unknown error' });
     }
 
     if (!user) {
@@ -100,9 +119,8 @@ router.post('/login', async (req: TypedRequestBody<LoginRequest>, res: Response)
       validPassword = await bcrypt.compare(password, user.password);
       console.log('Password validation result:', validPassword);
     } catch (error) {
-      const bcryptError = error as Error;
-      console.error('bcrypt error:', bcryptError);
-      return res.status(500).json({ error: 'Error validating password', details: bcryptError.message });
+      console.error('bcrypt error:', error);
+      return res.status(500).json({ error: 'Error validating password', details: error instanceof Error ? error.message : 'Unknown error' });
     }
 
     if (!validPassword) {
@@ -126,14 +144,12 @@ router.post('/login', async (req: TypedRequestBody<LoginRequest>, res: Response)
         token
       });
     } catch (error) {
-      const jwtError = error as Error;
-      console.error('JWT error:', jwtError);
-      return res.status(500).json({ error: 'Error generating token', details: jwtError.message });
+      console.error('JWT error:', error);
+      return res.status(500).json({ error: 'Error generating token', details: error instanceof Error ? error.message : 'Unknown error' });
     }
   } catch (error) {
-    const serverError = error as Error;
-    console.error('Login error:', serverError);
-    res.status(500).json({ error: 'Internal server error', details: serverError.message });
+    console.error('Login error:', error);
+    res.status(500).json({ error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' });
   }
 });
 

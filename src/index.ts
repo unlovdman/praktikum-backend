@@ -17,12 +17,13 @@ dotenv.config()
 
 // Override DATABASE_URL for production environment
 if (process.env.NODE_ENV === 'production') {
-  process.env.DATABASE_URL = "postgresql://postgres:Ymp1nkx0c97xnp6T@db.crtwwcwiokhxzjcuvkwd.supabase.co:6543/postgres?pgbouncer=true"
+  process.env.DATABASE_URL = "postgresql://postgres:Ymp1nkx0c97xnp6T@db.crtwwcwiokhxzjcuvkwd.supabase.co:5432/postgres?sslmode=require&connection_limit=1"
 }
 
 // Create a new PrismaClient instance with logging enabled
 const prisma = new PrismaClient({
-  log: ['query', 'info', 'warn', 'error']
+  log: ['query', 'info', 'warn', 'error'],
+  datasourceUrl: process.env.DATABASE_URL
 })
 
 // Test database connection on startup
