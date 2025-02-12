@@ -17,14 +17,21 @@ dotenv.config()
 
 // Create a new PrismaClient instance with logging enabled
 const prisma = new PrismaClient({
-  log: ['query', 'info', 'warn', 'error']
+  log: ['query', 'info', 'warn', 'error'],
+  datasources: {
+    db: {
+      url: process.env.DATABASE_URL
+    }
+  }
 })
 
-// Test database connection on startup
+// Test database connection on startup with detailed error logging
 prisma.$connect()
   .then(() => console.log('Database connection successful'))
   .catch((error) => {
     console.error('Database connection error:', error);
+    console.error('Connection URL:', process.env.DATABASE_URL);
+    console.error('Full error details:', JSON.stringify(error, null, 2));
   })
 
 const app = express()
