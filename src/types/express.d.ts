@@ -1,5 +1,6 @@
 import { PrismaClient, Role } from '@prisma/client'
-import { Request } from 'express'
+import { Request, ParamsDictionary } from 'express-serve-static-core'
+import { ParsedQs } from 'qs'
 
 declare global {
   namespace Express {
@@ -15,15 +16,15 @@ declare global {
   }
 }
 
-export interface TypedRequestBody<T> extends Request {
+export interface TypedRequestBody<T> extends Request<ParamsDictionary, any, T, ParsedQs> {
   body: T
 }
 
-export interface TypedRequestParams<T> extends Request {
+export interface TypedRequestParams<T extends ParamsDictionary> extends Request<T, any, any, ParsedQs> {
   params: T
 }
 
-export interface TypedRequest<T, U> extends Request {
+export interface TypedRequest<T, U extends ParamsDictionary> extends Request<U, any, T, ParsedQs> {
   body: T
   params: U
 } 

@@ -84,9 +84,9 @@ export interface Nilai {
 
 // Request body types
 export interface RegisterRequest {
-  name: string
   email: string
   password: string
+  name: string
   role: Role
 }
 
@@ -97,8 +97,8 @@ export interface LoginRequest {
 
 export interface CreatePeriodRequest {
   name: string
-  startDate: string | Date
-  endDate: string | Date
+  startDate: string
+  endDate: string
 }
 
 export interface CreatePertemuanRequest {
@@ -106,16 +106,16 @@ export interface CreatePertemuanRequest {
 }
 
 export interface CreatePraktikumRequest {
-  name: string
+  name?: string
   description?: string
-  date: string | Date
+  date: string
   googleFormUrl: string
 }
 
 export interface CreateAsistensiRequest {
   userId: string
   attendance: boolean
-  score?: number
+  score: number
 }
 
 export interface SubmitLaporanRequest {

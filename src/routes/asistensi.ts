@@ -1,7 +1,8 @@
 import { Router, Response } from 'express';
 import { assistantOrAdmin, authMiddleware } from '../middleware/auth';
 import { TypedRequestBody, TypedRequestParams, TypedRequest } from '../types/express';
-import { CreateAsistensiRequest, Asistensi } from '../types/models';
+import { CreateAsistensiRequest } from '../types/models';
+import { Request } from 'express-serve-static-core';
 
 const router = Router();
 
@@ -18,7 +19,7 @@ interface UserParams {
 }
 
 // Get all asistensi records for a pertemuan
-router.get('/pertemuan/:pertemuanId', authMiddleware, async (req: TypedRequestParams<PertemuanParams>, res: Response) => {
+router.get('/pertemuan/:pertemuanId', authMiddleware, async (req: Request & { db: any, params: PertemuanParams }, res: Response) => {
   try {
     const { pertemuanId } = req.params;
     const asistensi = await req.db.asistensi.findMany({
@@ -41,7 +42,7 @@ router.get('/pertemuan/:pertemuanId', authMiddleware, async (req: TypedRequestPa
 });
 
 // Get asistensi by ID
-router.get('/:id', authMiddleware, async (req: TypedRequestParams<AsistensiParams>, res: Response) => {
+router.get('/:id', authMiddleware, async (req: Request & { db: any, params: AsistensiParams }, res: Response) => {
   try {
     const { id } = req.params;
     const asistensi = await req.db.asistensi.findUnique({
@@ -67,7 +68,7 @@ router.get('/:id', authMiddleware, async (req: TypedRequestParams<AsistensiParam
 });
 
 // Get asistensi records for a user
-router.get('/user/:userId', authMiddleware, async (req: TypedRequestParams<UserParams>, res: Response) => {
+router.get('/user/:userId', authMiddleware, async (req: Request & { db: any, params: UserParams }, res: Response) => {
   try {
     const { userId } = req.params;
     const asistensi = await req.db.asistensi.findMany({
@@ -95,7 +96,7 @@ router.get('/user/:userId', authMiddleware, async (req: TypedRequestParams<UserP
 });
 
 // Record asistensi for a pertemuan (assistant or admin only)
-router.post('/pertemuan/:pertemuanId', assistantOrAdmin, async (req: TypedRequest<CreateAsistensiRequest, PertemuanParams>, res: Response) => {
+router.post('/pertemuan/:pertemuanId', assistantOrAdmin, async (req: Request & { db: any, body: CreateAsistensiRequest, params: PertemuanParams }, res: Response) => {
   try {
     const { pertemuanId } = req.params;
     const { userId, attendance, score } = req.body;
@@ -150,7 +151,7 @@ router.post('/pertemuan/:pertemuanId', assistantOrAdmin, async (req: TypedReques
 });
 
 // Update asistensi (assistant or admin only)
-router.put('/:id', assistantOrAdmin, async (req: TypedRequest<Partial<CreateAsistensiRequest>, AsistensiParams>, res: Response) => {
+router.put('/:id', assistantOrAdmin, async (req: Request & { db: any, body: Partial<CreateAsistensiRequest>, params: AsistensiParams }, res: Response) => {
   try {
     const { id } = req.params;
     const { attendance, score } = req.body;
@@ -178,7 +179,7 @@ router.put('/:id', assistantOrAdmin, async (req: TypedRequest<Partial<CreateAsis
 });
 
 // Delete asistensi (assistant or admin only)
-router.delete('/:id', assistantOrAdmin, async (req: TypedRequestParams<AsistensiParams>, res: Response) => {
+router.delete('/:id', assistantOrAdmin, async (req: Request & { db: any, params: AsistensiParams }, res: Response) => {
   try {
     const { id } = req.params;
     await req.db.asistensi.delete({

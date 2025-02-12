@@ -1,7 +1,8 @@
 import { Router, Response } from 'express';
 import { adminOnly, authMiddleware } from '../middleware/auth';
 import { TypedRequestBody, TypedRequestParams, TypedRequest } from '../types/express';
-import { CreatePeriodRequest, Period } from '../types/models';
+import { CreatePeriodRequest, CreatePertemuanRequest } from '../types/models';
+import { Request } from 'express-serve-static-core';
 
 const router = Router();
 
@@ -14,7 +15,7 @@ interface PeriodPertemuanParams {
 }
 
 // Get all periods
-router.get('/', authMiddleware, async (req: Request, res: Response) => {
+router.get('/', authMiddleware, async (req: Request & { db: any }, res: Response) => {
   try {
     const periods = await req.db.period.findMany({
       include: {
@@ -36,7 +37,7 @@ router.get('/', authMiddleware, async (req: Request, res: Response) => {
 });
 
 // Get period by ID
-router.get('/:id', authMiddleware, async (req: TypedRequestParams<PeriodParams>, res: Response) => {
+router.get('/:id', authMiddleware, async (req: Request & { db: any, params: PeriodParams }, res: Response) => {
   try {
     const { id } = req.params;
     const period = await req.db.period.findUnique({
@@ -63,7 +64,7 @@ router.get('/:id', authMiddleware, async (req: TypedRequestParams<PeriodParams>,
 });
 
 // Create new period (admin only)
-router.post('/', adminOnly, async (req: TypedRequestBody<CreatePeriodRequest>, res: Response) => {
+router.post('/', adminOnly, async (req: Request & { db: any, body: CreatePeriodRequest }, res: Response) => {
   try {
     const { name, startDate, endDate } = req.body;
     const period = await req.db.period.create({
@@ -81,7 +82,7 @@ router.post('/', adminOnly, async (req: TypedRequestBody<CreatePeriodRequest>, r
 });
 
 // Get all pertemuan for a period
-router.get('/:periodId/pertemuan', authMiddleware, async (req: TypedRequestParams<PeriodPertemuanParams>, res: Response) => {
+router.get('/:periodId/pertemuan', authMiddleware, async (req: Request & { db: any, params: PeriodPertemuanParams }, res: Response) => {
   try {
     const { periodId } = req.params;
     const pertemuan = await req.db.pertemuan.findMany({
@@ -104,7 +105,7 @@ router.get('/:periodId/pertemuan', authMiddleware, async (req: TypedRequestParam
 });
 
 // Create new pertemuan for a period (admin only)
-router.post('/:periodId/pertemuan', adminOnly, async (req: TypedRequest<CreatePertemuanRequest, PeriodPertemuanParams>, res: Response) => {
+router.post('/:periodId/pertemuan', adminOnly, async (req: Request & { db: any, body: CreatePertemuanRequest, params: PeriodPertemuanParams }, res: Response) => {
   try {
     const { periodId } = req.params;
     const { number } = req.body;
@@ -135,7 +136,7 @@ router.post('/:periodId/pertemuan', adminOnly, async (req: TypedRequest<CreatePe
 });
 
 // Update period (admin only)
-router.put('/:id', adminOnly, async (req: TypedRequest<CreatePeriodRequest, PeriodParams>, res: Response) => {
+router.put('/:id', adminOnly, async (req: Request & { db: any, body: CreatePeriodRequest, params: PeriodParams }, res: Response) => {
   try {
     const { id } = req.params;
     const { name, startDate, endDate } = req.body;
@@ -155,7 +156,7 @@ router.put('/:id', adminOnly, async (req: TypedRequest<CreatePeriodRequest, Peri
 });
 
 // Delete period (admin only)
-router.delete('/:id', adminOnly, async (req: TypedRequestParams<PeriodParams>, res: Response) => {
+router.delete('/:id', adminOnly, async (req: Request & { db: any, params: PeriodParams }, res: Response) => {
   try {
     const { id } = req.params;
     await req.db.period.delete({

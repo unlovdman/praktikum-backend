@@ -1,7 +1,8 @@
 import { Router, Response } from 'express'
 import { adminOnly, authMiddleware } from '../middleware/auth'
 import { TypedRequestBody, TypedRequestParams, TypedRequest } from '../types/express'
-import { CreatePraktikumRequest, Praktikum } from '../types/models'
+import { CreatePraktikumRequest } from '../types/models'
+import { Request } from 'express-serve-static-core'
 
 const router = Router()
 
@@ -18,7 +19,7 @@ interface PeriodParams {
 }
 
 // Get all praktikum sessions
-router.get('/', authMiddleware, async (req: Request, res: Response) => {
+router.get('/', authMiddleware, async (req: Request & { db: any }, res: Response) => {
   try {
     const praktikums = await req.db.praktikum.findMany({
       include: {
@@ -42,7 +43,7 @@ router.get('/', authMiddleware, async (req: Request, res: Response) => {
 })
 
 // Get praktikum by ID
-router.get('/:id', authMiddleware, async (req: TypedRequestParams<PraktikumParams>, res: Response) => {
+router.get('/:id', authMiddleware, async (req: Request & { db: any, params: PraktikumParams }, res: Response) => {
   try {
     const { id } = req.params
     const praktikum = await req.db.praktikum.findUnique({
@@ -57,10 +58,7 @@ router.get('/:id', authMiddleware, async (req: TypedRequestParams<PraktikumParam
           include: {
             members: true
           }
-        },
-        asistensi: true,
-        laporan: true,
-        nilai: true
+        }
       }
     })
     if (!praktikum) {
@@ -74,7 +72,7 @@ router.get('/:id', authMiddleware, async (req: TypedRequestParams<PraktikumParam
 })
 
 // Get praktikum by period
-router.get('/period/:periodId', authMiddleware, async (req: any, res) => {
+router.get('/period/:periodId', authMiddleware, async (req: Request & { db: any, params: PeriodParams }, res: Response) => {
   try {
     const { periodId } = req.params
     const praktikums = await req.db.praktikum.findMany({
@@ -90,12 +88,13 @@ router.get('/period/:periodId', authMiddleware, async (req: any, res) => {
     })
     res.json(praktikums)
   } catch (error) {
+    console.error('Get praktikum by period error:', error);
     res.status(500).json({ error: 'Internal server error' })
   }
 })
 
 // Get praktikum by pertemuan ID
-router.get('/pertemuan/:pertemuanId', authMiddleware, async (req: TypedRequestParams<PertemuanParams>, res: Response) => {
+router.get('/pertemuan/:pertemuanId', authMiddleware, async (req: Request & { db: any, params: PertemuanParams }, res: Response) => {
   try {
     const { pertemuanId } = req.params
     const praktikum = await req.db.praktikum.findUnique({
@@ -124,7 +123,7 @@ router.get('/pertemuan/:pertemuanId', authMiddleware, async (req: TypedRequestPa
 })
 
 // Schedule praktikum for a pertemuan (admin only)
-router.post('/pertemuan/:pertemuanId', adminOnly, async (req: TypedRequest<CreatePraktikumRequest, PertemuanParams>, res: Response) => {
+router.post('/pertemuan/:pertemuanId', adminOnly, async (req: Request & { db: any, body: CreatePraktikumRequest, params: PertemuanParams }, res: Response) => {
   try {
     const { pertemuanId } = req.params
     const { name, description, date, googleFormUrl } = req.body
@@ -188,7 +187,7 @@ router.post('/pertemuan/:pertemuanId', adminOnly, async (req: TypedRequest<Creat
 })
 
 // Update praktikum (admin only)
-router.put('/:id', adminOnly, async (req: TypedRequest<CreatePraktikumRequest, PraktikumParams>, res: Response) => {
+router.put('/:id', adminOnly, async (req: Request & { db: any, body: CreatePraktikumRequest, params: PraktikumParams }, res: Response) => {
   try {
     const { id } = req.params
     const { name, description, date, googleFormUrl } = req.body
@@ -226,7 +225,7 @@ router.put('/:id', adminOnly, async (req: TypedRequest<CreatePraktikumRequest, P
 })
 
 // Delete praktikum (admin only)
-router.delete('/:id', adminOnly, async (req: TypedRequestParams<PraktikumParams>, res: Response) => {
+router.delete('/:id', adminOnly, async (req: Request & { db: any, params: PraktikumParams }, res: Response) => {
   try {
     const { id } = req.params
     await req.db.praktikum.delete({
