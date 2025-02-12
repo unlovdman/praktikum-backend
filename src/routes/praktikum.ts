@@ -2,19 +2,19 @@ import { Router, Response } from 'express'
 import { adminOnly, authMiddleware } from '../middleware/auth'
 import { TypedRequestBody, TypedRequestParams, TypedRequest } from '../types/express'
 import { CreatePraktikumRequest } from '../types/models'
-import { Request } from 'express-serve-static-core'
+import { Request, ParamsDictionary } from 'express-serve-static-core'
 
 const router = Router()
 
-interface PraktikumParams {
+interface PraktikumParams extends ParamsDictionary {
   id: string;
 }
 
-interface PertemuanParams {
+interface PertemuanParams extends ParamsDictionary {
   pertemuanId: string;
 }
 
-interface PeriodParams {
+interface PeriodParams extends ParamsDictionary {
   periodId: string;
 }
 

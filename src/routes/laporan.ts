@@ -2,18 +2,19 @@ import { Router, Response } from 'express';
 import { assistantOrAdmin, authMiddleware } from '../middleware/auth';
 import { TypedRequestBody, TypedRequestParams, TypedRequest } from '../types/express';
 import { SubmitLaporanRequest, ScoreLaporanRequest } from '../types/models';
+import { Request, ParamsDictionary } from 'express-serve-static-core';
 
 const router = Router();
 
-interface LaporanParams {
+interface LaporanParams extends ParamsDictionary {
   id: string;
 }
 
-interface PertemuanParams {
+interface PertemuanParams extends ParamsDictionary {
   pertemuanId: string;
 }
 
-interface UserParams {
+interface UserParams extends ParamsDictionary {
   userId: string;
 }
 

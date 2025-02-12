@@ -2,15 +2,15 @@ import { Router, Response } from 'express';
 import { adminOnly, authMiddleware } from '../middleware/auth';
 import { TypedRequestBody, TypedRequestParams, TypedRequest } from '../types/express';
 import { CreatePeriodRequest, CreatePertemuanRequest } from '../types/models';
-import { Request } from 'express-serve-static-core';
+import { Request, ParamsDictionary } from 'express-serve-static-core';
 
 const router = Router();
 
-interface PeriodParams {
+interface PeriodParams extends ParamsDictionary {
   id: string;
 }
 
-interface PeriodPertemuanParams {
+interface PeriodPertemuanParams extends ParamsDictionary {
   periodId: string;
 }
 
