@@ -5,6 +5,9 @@ import * as dotenv from 'dotenv';
 // Load environment variables
 dotenv.config();
 
+// Override DATABASE_URL with correct port for direct database access
+process.env.DATABASE_URL = "postgresql://postgres:Ymp1nkx0c97xnp6T@db.crtwwcwiokhxzjcuvkwd.supabase.co:5432/postgres";
+
 async function createAdmin() {
   const prisma = new PrismaClient();
   console.log('Connecting to database...');
