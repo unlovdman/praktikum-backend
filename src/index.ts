@@ -20,7 +20,7 @@ const prisma = new PrismaClient({
   log: ['query', 'info', 'warn', 'error'],
   datasources: {
     db: {
-      url: "postgresql://postgres:Ymp1nkx0c97xnp6T@db.crtwwcwiokhxzjcuvkwd.supabase.co:5432/postgres?pgbouncer=true&connection_limit=1&sslmode=require&pool_timeout=0"
+      url: "postgresql://postgres:Ymp1nkx0c97xnp6T@db.crtwwcwiokhxzjcuvkwd.supabase.co:6543/postgres?pgbouncer=true&connection_limit=1&sslmode=require&pool_timeout=0"
     }
   }
 })
@@ -30,7 +30,6 @@ prisma.$connect()
   .then(() => console.log('Database connection successful'))
   .catch((error) => {
     console.error('Database connection error:', error);
-    console.error('Connection URL:', process.env.DATABASE_URL);
   })
 
 const app = express()
