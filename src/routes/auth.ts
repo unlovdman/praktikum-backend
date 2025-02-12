@@ -55,16 +55,33 @@ router.post('/login', async (req: TypedRequestBody<LoginRequest>, res: Response)
     console.log('Login attempt for:', req.body.email);
     const { email, password } = req.body;
 
-    const user = await req.db.user.findUnique({
-      where: { email },
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        password: true,
-        role: true
-      }
-    });
+    // Test database connection
+    try {
+      await req.db.$connect();
+      console.log('Database connection successful');
+    } catch (dbError) {
+      console.error('Database connection error:', dbError);
+      return res.status(500).json({ error: 'Database connection failed' });
+    }
+
+    // Find user
+    let user;
+    try {
+      user = await req.db.user.findUnique({
+        where: { email },
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          password: true,
+          role: true
+        }
+      });
+      console.log('User query result:', user ? 'User found' : 'User not found');
+    } catch (queryError) {
+      console.error('User query error:', queryError);
+      return res.status(500).json({ error: 'Error finding user' });
+    }
 
     if (!user) {
       console.log('User not found:', email);
@@ -73,23 +90,26 @@ router.post('/login', async (req: TypedRequestBody<LoginRequest>, res: Response)
 
     console.log('User found:', { id: user.id, email: user.email, role: user.role });
 
+    // Verify password
+    let validPassword;
     try {
-      const validPassword = await bcrypt.compare(password, user.password);
+      validPassword = await bcrypt.compare(password, user.password);
       console.log('Password validation result:', validPassword);
-
-      if (!validPassword) {
-        console.log('Invalid password for user:', email);
-        return res.status(401).json({ error: 'Invalid credentials' });
-      }
     } catch (bcryptError) {
       console.error('bcrypt error:', bcryptError);
       return res.status(500).json({ error: 'Error validating password' });
     }
 
+    if (!validPassword) {
+      console.log('Invalid password for user:', email);
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    // Generate JWT
     try {
       const token = jwt.sign(
         { id: user.id, email: user.email, role: user.role, name: user.name },
-        process.env.JWT_SECRET || 'secret',
+        process.env.JWT_SECRET || '253dacd5af0b3612ea1d45420d494ed260a9dcb93aaf9b8ac8aa1de2c51a5f6e',
         { expiresIn: '1d' }
       );
       console.log('JWT token generated successfully');
