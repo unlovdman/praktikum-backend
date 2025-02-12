@@ -1,0 +1,132 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String      @id @default(uuid())
+  name      String
+  email     String      @unique
+  password  String
+  role      Role        @default(PRAKTIKAN)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  
+  // Relations
+  asistensi    Asistensi[]
+  laporan      Laporan[]
+  nilai        Nilai[]
+  kelompok     Kelompok?    @relation(fields: [kelompokId], references: [id])
+  kelompokId   String?
+}
+
+model Period {
+  id          String      @id @default(uuid())
+  name        String      // e.g., "PBO Periode X"
+  startDate   DateTime
+  endDate     DateTime
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  // Relations
+  pertemuan   Pertemuan[]
+}
+
+model Pertemuan {
+  id          String      @id @default(uuid())
+  number      Int         // Pertemuan number (1, 2, 3, etc.)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  // Relations
+  period      Period      @relation(fields: [periodId], references: [id])
+  periodId    String
+  praktikum   Praktikum?  // One praktikum session per pertemuan
+  asistensi   Asistensi[] // Multiple asistensi records for this pertemuan
+  laporan     Laporan[]   // Multiple laporan records for this pertemuan
+  nilai       Nilai[]     // Multiple nilai records for this pertemuan
+}
+
+model Praktikum {
+  id          String      @id @default(uuid())
+  name        String      // e.g., "Praktikum PBO Pertemuan 1"
+  description String?
+  date        DateTime    // Date of the praktikum session
+  googleFormUrl String    // Google Form link for laporan submission
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  // Relations
+  pertemuan   Pertemuan   @relation(fields: [pertemuanId], references: [id])
+  pertemuanId String      @unique // One-to-one with Pertemuan
+  kelompok    Kelompok[]
+}
+
+model Kelompok {
+  id          String      @id @default(uuid())
+  name        String
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  // Relations
+  praktikum   Praktikum   @relation(fields: [praktikumId], references: [id])
+  praktikumId String
+  members     User[]
+}
+
+model Asistensi {
+  id            String      @id @default(uuid())
+  attendance    Boolean     @default(false)
+  score         Float?
+  date          DateTime    @default(now())
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  
+  // Relations
+  user          User        @relation(fields: [userId], references: [id])
+  userId        String
+  pertemuan     Pertemuan   @relation(fields: [pertemuanId], references: [id])
+  pertemuanId   String
+}
+
+model Laporan {
+  id            String      @id @default(uuid())
+  submittedAt   DateTime    @default(now())
+  deadline      DateTime    // Deadline for submission (automatically set to next pertemuan's date)
+  isLate        Boolean     @default(false) // Flag to indicate if submission was late
+  score         Float?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  
+  // Relations
+  user          User        @relation(fields: [userId], references: [id])
+  userId        String
+  pertemuan     Pertemuan   @relation(fields: [pertemuanId], references: [id])
+  pertemuanId   String
+}
+
+model Nilai {
+  id              String    @id @default(uuid())
+  praktikumScore  Float?    // Score for the praktikum session
+  asistensiScore  Float?    // Score for the asistensi session
+  laporanScore    Float?    // Score for the submitted report
+  finalScore      Float?    // Weighted average of all scores
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  // Relations
+  user            User      @relation(fields: [userId], references: [id])
+  userId          String
+  pertemuan       Pertemuan @relation(fields: [pertemuanId], references: [id])
+  pertemuanId     String
+}
+
+enum Role {
+  ADMIN
+  ASISTEN_LAB
+  PRAKTIKAN
+} 
