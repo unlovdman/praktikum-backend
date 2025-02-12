@@ -9,12 +9,7 @@ const router = Router();
 
 // Create a new PrismaClient instance with logging enabled
 const prisma = new PrismaClient({
-  log: ['query', 'info', 'warn', 'error'],
-  datasources: {
-    db: {
-      url: "postgresql://postgres:Ymp1nkx0c97xnp6T@db.crtwwcwiokhxzjcuvkwd.supabase.co:5432/postgres?pgbouncer=true&connection_limit=1&sslmode=require&pool_timeout=0"
-    }
-  }
+  log: ['query', 'info', 'warn', 'error']
 });
 
 // Ensure database connection on startup
