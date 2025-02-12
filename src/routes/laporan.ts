@@ -1,10 +1,24 @@
-import { Router } from 'express';
+import { Router, Response } from 'express';
 import { assistantOrAdmin, authMiddleware } from '../middleware/auth';
+import { TypedRequestBody, TypedRequestParams, TypedRequest } from '../types/express';
+import { SubmitLaporanRequest, ScoreLaporanRequest } from '../types/models';
 
 const router = Router();
 
+interface LaporanParams {
+  id: string;
+}
+
+interface PertemuanParams {
+  pertemuanId: string;
+}
+
+interface UserParams {
+  userId: string;
+}
+
 // Get all laporan records for a pertemuan
-router.get('/pertemuan/:pertemuanId', authMiddleware, async (req: any, res) => {
+router.get('/pertemuan/:pertemuanId', authMiddleware, async (req: TypedRequestParams<PertemuanParams>, res: Response) => {
   try {
     const { pertemuanId } = req.params;
     const laporan = await req.db.laporan.findMany({
@@ -21,12 +35,13 @@ router.get('/pertemuan/:pertemuanId', authMiddleware, async (req: any, res) => {
     });
     res.json(laporan);
   } catch (error) {
+    console.error('Get laporan records error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
 // Get laporan by ID
-router.get('/:id', authMiddleware, async (req: any, res) => {
+router.get('/:id', authMiddleware, async (req: TypedRequestParams<LaporanParams>, res: Response) => {
   try {
     const { id } = req.params;
     const laporan = await req.db.laporan.findUnique({
@@ -46,12 +61,13 @@ router.get('/:id', authMiddleware, async (req: any, res) => {
     }
     res.json(laporan);
   } catch (error) {
+    console.error('Get laporan error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
 // Get laporan records for a user
-router.get('/user/:userId', authMiddleware, async (req: any, res) => {
+router.get('/user/:userId', authMiddleware, async (req: TypedRequestParams<UserParams>, res: Response) => {
   try {
     const { userId } = req.params;
     const laporan = await req.db.laporan.findMany({
@@ -73,12 +89,13 @@ router.get('/user/:userId', authMiddleware, async (req: any, res) => {
     });
     res.json(laporan);
   } catch (error) {
+    console.error('Get user laporan records error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
 // Submit laporan for a pertemuan
-router.post('/pertemuan/:pertemuanId', authMiddleware, async (req: any, res) => {
+router.post('/pertemuan/:pertemuanId', authMiddleware, async (req: TypedRequest<SubmitLaporanRequest, PertemuanParams>, res: Response) => {
   try {
     const { pertemuanId } = req.params;
     const { userId } = req.body;
@@ -168,12 +185,13 @@ router.post('/pertemuan/:pertemuanId', authMiddleware, async (req: any, res) => 
 
     res.status(201).json(response);
   } catch (error) {
+    console.error('Submit laporan error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
 // Get Google Form URL for a pertemuan
-router.get('/pertemuan/:pertemuanId/form', authMiddleware, async (req: any, res) => {
+router.get('/pertemuan/:pertemuanId/form', authMiddleware, async (req: TypedRequestParams<PertemuanParams>, res: Response) => {
   try {
     const { pertemuanId } = req.params;
 
@@ -194,12 +212,13 @@ router.get('/pertemuan/:pertemuanId/form', authMiddleware, async (req: any, res)
 
     res.json({ googleFormUrl: pertemuan.praktikum.googleFormUrl });
   } catch (error) {
+    console.error('Get form URL error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
 // Score laporan (assistant or admin only)
-router.put('/:id/score', assistantOrAdmin, async (req: any, res) => {
+router.put('/:id/score', assistantOrAdmin, async (req: TypedRequest<ScoreLaporanRequest, LaporanParams>, res: Response) => {
   try {
     const { id } = req.params;
     const { score } = req.body;
@@ -242,12 +261,13 @@ router.put('/:id/score', assistantOrAdmin, async (req: any, res) => {
 
     res.json(updatedLaporan);
   } catch (error) {
+    console.error('Score laporan error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
 // Get upcoming deadlines for a user
-router.get('/deadlines/:userId', authMiddleware, async (req: any, res) => {
+router.get('/deadlines/:userId', authMiddleware, async (req: TypedRequestParams<UserParams>, res: Response) => {
   try {
     const { userId } = req.params;
     
@@ -292,12 +312,13 @@ router.get('/deadlines/:userId', authMiddleware, async (req: any, res) => {
 
     res.json(deadlines);
   } catch (error) {
+    console.error('Get deadlines error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
 // Delete laporan (assistant or admin only)
-router.delete('/:id', assistantOrAdmin, async (req: any, res) => {
+router.delete('/:id', assistantOrAdmin, async (req: TypedRequestParams<LaporanParams>, res: Response) => {
   try {
     const { id } = req.params;
     await req.db.laporan.delete({
@@ -305,6 +326,7 @@ router.delete('/:id', assistantOrAdmin, async (req: any, res) => {
     });
     res.status(204).send();
   } catch (error) {
+    console.error('Delete laporan error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

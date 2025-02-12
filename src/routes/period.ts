@@ -1,10 +1,20 @@
-import { Router } from 'express';
+import { Router, Response } from 'express';
 import { adminOnly, authMiddleware } from '../middleware/auth';
+import { TypedRequestBody, TypedRequestParams, TypedRequest } from '../types/express';
+import { CreatePeriodRequest, Period } from '../types/models';
 
 const router = Router();
 
+interface PeriodParams {
+  id: string;
+}
+
+interface PeriodPertemuanParams {
+  periodId: string;
+}
+
 // Get all periods
-router.get('/', authMiddleware, async (req: any, res) => {
+router.get('/', authMiddleware, async (req: Request, res: Response) => {
   try {
     const periods = await req.db.period.findMany({
       include: {
@@ -20,12 +30,13 @@ router.get('/', authMiddleware, async (req: any, res) => {
     });
     res.json(periods);
   } catch (error) {
+    console.error('Get periods error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
 // Get period by ID
-router.get('/:id', authMiddleware, async (req: any, res) => {
+router.get('/:id', authMiddleware, async (req: TypedRequestParams<PeriodParams>, res: Response) => {
   try {
     const { id } = req.params;
     const period = await req.db.period.findUnique({
@@ -46,12 +57,13 @@ router.get('/:id', authMiddleware, async (req: any, res) => {
     }
     res.json(period);
   } catch (error) {
+    console.error('Get period error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
 // Create new period (admin only)
-router.post('/', adminOnly, async (req: any, res) => {
+router.post('/', adminOnly, async (req: TypedRequestBody<CreatePeriodRequest>, res: Response) => {
   try {
     const { name, startDate, endDate } = req.body;
     const period = await req.db.period.create({
@@ -63,12 +75,13 @@ router.post('/', adminOnly, async (req: any, res) => {
     });
     res.status(201).json(period);
   } catch (error) {
+    console.error('Create period error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
 // Get all pertemuan for a period
-router.get('/:periodId/pertemuan', authMiddleware, async (req: any, res) => {
+router.get('/:periodId/pertemuan', authMiddleware, async (req: TypedRequestParams<PeriodPertemuanParams>, res: Response) => {
   try {
     const { periodId } = req.params;
     const pertemuan = await req.db.pertemuan.findMany({
@@ -85,12 +98,13 @@ router.get('/:periodId/pertemuan', authMiddleware, async (req: any, res) => {
     });
     res.json(pertemuan);
   } catch (error) {
+    console.error('Get pertemuan error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
 // Create new pertemuan for a period (admin only)
-router.post('/:periodId/pertemuan', adminOnly, async (req: any, res) => {
+router.post('/:periodId/pertemuan', adminOnly, async (req: TypedRequest<CreatePertemuanRequest, PeriodPertemuanParams>, res: Response) => {
   try {
     const { periodId } = req.params;
     const { number } = req.body;
@@ -115,12 +129,13 @@ router.post('/:periodId/pertemuan', adminOnly, async (req: any, res) => {
     });
     res.status(201).json(pertemuan);
   } catch (error) {
+    console.error('Create pertemuan error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
 // Update period (admin only)
-router.put('/:id', adminOnly, async (req: any, res) => {
+router.put('/:id', adminOnly, async (req: TypedRequest<CreatePeriodRequest, PeriodParams>, res: Response) => {
   try {
     const { id } = req.params;
     const { name, startDate, endDate } = req.body;
@@ -134,12 +149,13 @@ router.put('/:id', adminOnly, async (req: any, res) => {
     });
     res.json(period);
   } catch (error) {
+    console.error('Update period error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
 // Delete period (admin only)
-router.delete('/:id', adminOnly, async (req: any, res) => {
+router.delete('/:id', adminOnly, async (req: TypedRequestParams<PeriodParams>, res: Response) => {
   try {
     const { id } = req.params;
     await req.db.period.delete({
@@ -147,6 +163,7 @@ router.delete('/:id', adminOnly, async (req: any, res) => {
     });
     res.status(204).send();
   } catch (error) {
+    console.error('Delete period error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

@@ -1,10 +1,24 @@
-import { Router } from 'express';
+import { Router, Response } from 'express';
 import { assistantOrAdmin, authMiddleware } from '../middleware/auth';
+import { TypedRequestBody, TypedRequestParams, TypedRequest } from '../types/express';
+import { CreateNilaiRequest } from '../types/models';
 
 const router = Router();
 
+interface NilaiParams {
+  id: string;
+}
+
+interface PertemuanParams {
+  pertemuanId: string;
+}
+
+interface UserParams {
+  userId: string;
+}
+
 // Get all nilai records for a pertemuan
-router.get('/pertemuan/:pertemuanId', authMiddleware, async (req: any, res) => {
+router.get('/pertemuan/:pertemuanId', authMiddleware, async (req: TypedRequestParams<PertemuanParams>, res: Response) => {
   try {
     const { pertemuanId } = req.params;
     const nilai = await req.db.nilai.findMany({
@@ -21,12 +35,13 @@ router.get('/pertemuan/:pertemuanId', authMiddleware, async (req: any, res) => {
     });
     res.json(nilai);
   } catch (error) {
+    console.error('Get nilai records error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
 // Get nilai by ID
-router.get('/:id', authMiddleware, async (req: any, res) => {
+router.get('/:id', authMiddleware, async (req: TypedRequestParams<NilaiParams>, res: Response) => {
   try {
     const { id } = req.params;
     const nilai = await req.db.nilai.findUnique({
@@ -46,12 +61,13 @@ router.get('/:id', authMiddleware, async (req: any, res) => {
     }
     res.json(nilai);
   } catch (error) {
+    console.error('Get nilai error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
 // Get nilai records for a user
-router.get('/user/:userId', authMiddleware, async (req: any, res) => {
+router.get('/user/:userId', authMiddleware, async (req: TypedRequestParams<UserParams>, res: Response) => {
   try {
     const { userId } = req.params;
     const nilai = await req.db.nilai.findMany({
@@ -73,12 +89,13 @@ router.get('/user/:userId', authMiddleware, async (req: any, res) => {
     });
     res.json(nilai);
   } catch (error) {
+    console.error('Get user nilai records error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
 // Input or update nilai for a pertemuan (assistant or admin only)
-router.post('/pertemuan/:pertemuanId', assistantOrAdmin, async (req: any, res) => {
+router.post('/pertemuan/:pertemuanId', assistantOrAdmin, async (req: TypedRequest<CreateNilaiRequest, PertemuanParams>, res: Response) => {
   try {
     const { pertemuanId } = req.params;
     const { userId, praktikumScore, asistensiScore, laporanScore } = req.body;
@@ -153,12 +170,13 @@ router.post('/pertemuan/:pertemuanId', assistantOrAdmin, async (req: any, res) =
       res.status(201).json(nilai);
     }
   } catch (error) {
+    console.error('Input/update nilai error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
 // Delete nilai (assistant or admin only)
-router.delete('/:id', assistantOrAdmin, async (req: any, res) => {
+router.delete('/:id', assistantOrAdmin, async (req: TypedRequestParams<NilaiParams>, res: Response) => {
   try {
     const { id } = req.params;
     await req.db.nilai.delete({
@@ -166,6 +184,7 @@ router.delete('/:id', assistantOrAdmin, async (req: any, res) => {
     });
     res.status(204).send();
   } catch (error) {
+    console.error('Delete nilai error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

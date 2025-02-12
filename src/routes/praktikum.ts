@@ -1,14 +1,32 @@
-import { Router } from 'express'
+import { Router, Response } from 'express'
 import { adminOnly, authMiddleware } from '../middleware/auth'
+import { TypedRequestBody, TypedRequestParams, TypedRequest } from '../types/express'
+import { CreatePraktikumRequest, Praktikum } from '../types/models'
 
 const router = Router()
 
+interface PraktikumParams {
+  id: string;
+}
+
+interface PertemuanParams {
+  pertemuanId: string;
+}
+
+interface PeriodParams {
+  periodId: string;
+}
+
 // Get all praktikum sessions
-router.get('/', authMiddleware, async (req: any, res) => {
+router.get('/', authMiddleware, async (req: Request, res: Response) => {
   try {
     const praktikums = await req.db.praktikum.findMany({
       include: {
-        period: true,
+        pertemuan: {
+          include: {
+            period: true
+          }
+        },
         kelompok: {
           include: {
             members: true
@@ -18,18 +36,23 @@ router.get('/', authMiddleware, async (req: any, res) => {
     })
     res.json(praktikums)
   } catch (error) {
+    console.error('Get praktikums error:', error);
     res.status(500).json({ error: 'Internal server error' })
   }
 })
 
 // Get praktikum by ID
-router.get('/:id', authMiddleware, async (req: any, res) => {
+router.get('/:id', authMiddleware, async (req: TypedRequestParams<PraktikumParams>, res: Response) => {
   try {
     const { id } = req.params
     const praktikum = await req.db.praktikum.findUnique({
       where: { id },
       include: {
-        period: true,
+        pertemuan: {
+          include: {
+            period: true
+          }
+        },
         kelompok: {
           include: {
             members: true
@@ -45,6 +68,7 @@ router.get('/:id', authMiddleware, async (req: any, res) => {
     }
     res.json(praktikum)
   } catch (error) {
+    console.error('Get praktikum error:', error);
     res.status(500).json({ error: 'Internal server error' })
   }
 })
@@ -71,7 +95,7 @@ router.get('/period/:periodId', authMiddleware, async (req: any, res) => {
 })
 
 // Get praktikum by pertemuan ID
-router.get('/pertemuan/:pertemuanId', authMiddleware, async (req: any, res) => {
+router.get('/pertemuan/:pertemuanId', authMiddleware, async (req: TypedRequestParams<PertemuanParams>, res: Response) => {
   try {
     const { pertemuanId } = req.params
     const praktikum = await req.db.praktikum.findUnique({
@@ -94,12 +118,13 @@ router.get('/pertemuan/:pertemuanId', authMiddleware, async (req: any, res) => {
     }
     res.json(praktikum)
   } catch (error) {
+    console.error('Get praktikum by pertemuan error:', error);
     res.status(500).json({ error: 'Internal server error' })
   }
 })
 
 // Schedule praktikum for a pertemuan (admin only)
-router.post('/pertemuan/:pertemuanId', adminOnly, async (req: any, res) => {
+router.post('/pertemuan/:pertemuanId', adminOnly, async (req: TypedRequest<CreatePraktikumRequest, PertemuanParams>, res: Response) => {
   try {
     const { pertemuanId } = req.params
     const { name, description, date, googleFormUrl } = req.body
@@ -157,12 +182,13 @@ router.post('/pertemuan/:pertemuanId', adminOnly, async (req: any, res) => {
     })
     res.status(201).json(praktikum)
   } catch (error) {
+    console.error('Create praktikum error:', error);
     res.status(500).json({ error: 'Internal server error' })
   }
 })
 
 // Update praktikum (admin only)
-router.put('/:id', adminOnly, async (req: any, res) => {
+router.put('/:id', adminOnly, async (req: TypedRequest<CreatePraktikumRequest, PraktikumParams>, res: Response) => {
   try {
     const { id } = req.params
     const { name, description, date, googleFormUrl } = req.body
@@ -194,12 +220,13 @@ router.put('/:id', adminOnly, async (req: any, res) => {
     })
     res.json(praktikum)
   } catch (error) {
+    console.error('Update praktikum error:', error);
     res.status(500).json({ error: 'Internal server error' })
   }
 })
 
 // Delete praktikum (admin only)
-router.delete('/:id', adminOnly, async (req: any, res) => {
+router.delete('/:id', adminOnly, async (req: TypedRequestParams<PraktikumParams>, res: Response) => {
   try {
     const { id } = req.params
     await req.db.praktikum.delete({
@@ -207,6 +234,7 @@ router.delete('/:id', adminOnly, async (req: any, res) => {
     })
     res.status(204).send()
   } catch (error) {
+    console.error('Delete praktikum error:', error);
     res.status(500).json({ error: 'Internal server error' })
   }
 })
