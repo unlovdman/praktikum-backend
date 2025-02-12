@@ -12,6 +12,11 @@ const prisma = new PrismaClient({
   log: ['query', 'info', 'warn', 'error']
 });
 
+// Ensure database connection on startup
+prisma.$connect()
+  .then(() => console.log('Auth route: Database connection successful'))
+  .catch((error) => console.error('Auth route: Database connection error:', error));
+
 // Register endpoint
 router.post('/register', async (req: TypedRequestBody<RegisterRequest>, res: Response) => {
   try {
@@ -56,27 +61,16 @@ router.post('/register', async (req: TypedRequestBody<RegisterRequest>, res: Res
 
 // Login endpoint
 router.post('/login', async (req: TypedRequestBody<LoginRequest>, res: Response) => {
-  const client = prisma;
   console.log('Starting login process...');
   
   try {
     console.log('Login attempt for:', req.body.email);
     const { email, password } = req.body;
 
-    // Test database connection
-    try {
-      await client.$connect();
-      console.log('Database connection successful');
-    } catch (error) {
-      const dbError = error as Error;
-      console.error('Database connection error:', dbError);
-      return res.status(500).json({ error: 'Database connection failed', details: dbError.message });
-    }
-
     // Find user
     let user;
     try {
-      user = await client.user.findUnique({
+      user = await prisma.user.findUnique({
         where: { email },
         select: {
           id: true,
@@ -140,14 +134,6 @@ router.post('/login', async (req: TypedRequestBody<LoginRequest>, res: Response)
     const serverError = error as Error;
     console.error('Login error:', serverError);
     res.status(500).json({ error: 'Internal server error', details: serverError.message });
-  } finally {
-    try {
-      await client.$disconnect();
-      console.log('Database disconnected successfully');
-    } catch (error) {
-      const disconnectError = error as Error;
-      console.error('Error disconnecting from database:', disconnectError);
-    }
   }
 });
 

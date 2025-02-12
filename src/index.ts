@@ -15,10 +15,20 @@ import { periodRouter } from './routes/period'
 
 dotenv.config()
 
+// Override DATABASE_URL for production environment
+if (process.env.NODE_ENV === 'production') {
+  process.env.DATABASE_URL = "postgresql://postgres:Ymp1nkx0c97xnp6T@db.crtwwcwiokhxzjcuvkwd.supabase.co:6543/postgres?pgbouncer=true"
+}
+
 // Create a new PrismaClient instance with logging enabled
 const prisma = new PrismaClient({
   log: ['query', 'info', 'warn', 'error']
 })
+
+// Test database connection on startup
+prisma.$connect()
+  .then(() => console.log('Database connection successful'))
+  .catch((error) => console.error('Database connection error:', error))
 
 const app = express()
 
