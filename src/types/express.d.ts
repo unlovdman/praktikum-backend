@@ -27,4 +27,3 @@ export interface TypedRequest<T, U> extends Request {
   body: T
   params: U
 } 
-} 
