@@ -52,34 +52,58 @@ router.post('/register', async (req: TypedRequestBody<RegisterRequest>, res: Res
 // Login endpoint
 router.post('/login', async (req: TypedRequestBody<LoginRequest>, res: Response) => {
   try {
+    console.log('Login attempt for:', req.body.email);
     const { email, password } = req.body;
 
     const user = await req.db.user.findUnique({
-      where: { email }
+      where: { email },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        password: true,
+        role: true
+      }
     });
 
     if (!user) {
+      console.log('User not found:', email);
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    const validPassword = await bcrypt.compare(password, user.password);
+    console.log('User found:', { id: user.id, email: user.email, role: user.role });
 
-    if (!validPassword) {
-      return res.status(401).json({ error: 'Invalid credentials' });
+    try {
+      const validPassword = await bcrypt.compare(password, user.password);
+      console.log('Password validation result:', validPassword);
+
+      if (!validPassword) {
+        console.log('Invalid password for user:', email);
+        return res.status(401).json({ error: 'Invalid credentials' });
+      }
+    } catch (bcryptError) {
+      console.error('bcrypt error:', bcryptError);
+      return res.status(500).json({ error: 'Error validating password' });
     }
 
-    const token = jwt.sign(
-      { id: user.id, email: user.email, role: user.role, name: user.name },
-      process.env.JWT_SECRET || 'secret',
-      { expiresIn: '1d' }
-    );
+    try {
+      const token = jwt.sign(
+        { id: user.id, email: user.email, role: user.role, name: user.name },
+        process.env.JWT_SECRET || 'secret',
+        { expiresIn: '1d' }
+      );
+      console.log('JWT token generated successfully');
 
-    const { password: _, ...userWithoutPassword } = user;
+      const { password: _, ...userWithoutPassword } = user;
 
-    res.json({
-      user: userWithoutPassword,
-      token
-    });
+      res.json({
+        user: userWithoutPassword,
+        token
+      });
+    } catch (jwtError) {
+      console.error('JWT error:', jwtError);
+      return res.status(500).json({ error: 'Error generating token' });
+    }
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ error: 'Internal server error' });
