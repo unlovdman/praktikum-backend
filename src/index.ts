@@ -20,23 +20,29 @@ const prisma = new PrismaClient({
   log: ['query', 'info', 'warn', 'error'],
   datasources: {
     db: {
-      url: process.env.DATABASE_URL?.replace('postgres://', 'postgresql://') || ''
+      url: process.env.DATABASE_URL
     }
   }
 })
 
 // Test database connection on startup with detailed error logging
 async function connectDatabase() {
-  try {
-    await prisma.$connect()
-    console.log('Database connection successful')
-  } catch (error) {
-    console.error('Database connection error:', {
-      error,
-      url: process.env.DATABASE_URL?.replace(/:[^:@]*@/, ':****@') // Hide password in logs
-    })
-    // Don't exit the process, just log the error
-    console.error('Full error details:', JSON.stringify(error, null, 2))
+  for (let i = 0; i < 3; i++) { // Try 3 times
+    try {
+      await prisma.$connect()
+      console.log('Database connection successful')
+      return
+    } catch (error) {
+      console.error(`Database connection attempt ${i + 1} failed:`, {
+        error,
+        url: process.env.DATABASE_URL?.replace(/:[^:@]*@/, ':****@') // Hide password in logs
+      })
+      if (i === 2) { // Last attempt
+        console.error('All connection attempts failed. Full error details:', JSON.stringify(error, null, 2))
+      } else {
+        await new Promise(resolve => setTimeout(resolve, 1000)) // Wait 1 second before retrying
+      }
+    }
   }
 }
 
