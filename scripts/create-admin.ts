@@ -5,8 +5,8 @@ import * as dotenv from 'dotenv';
 // Load environment variables
 dotenv.config();
 
-// Override DATABASE_URL with correct port for direct database access
-process.env.DATABASE_URL = "postgresql://postgres:Ymp1nkx0c97xnp6T@db.crtwwcwiokhxzjcuvkwd.supabase.co:5432/postgres";
+// Use the PostgreSQL connection URL
+process.env.DATABASE_URL = "postgresql://postgres:Ymp1nkx0c97xnp6T@db.crtwwcwiokhxzjcuvkwd.supabase.co:5432/postgres?sslmode=require&connection_limit=1&pool_timeout=0";
 
 async function createAdmin() {
   const prisma = new PrismaClient();
@@ -19,7 +19,7 @@ async function createAdmin() {
 
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
-      where: { email: 'admin.rpl@itats.com' }
+      where: { email: 'lab.rpl@itats.com' }
     });
 
     if (existingUser) {
@@ -38,10 +38,10 @@ async function createAdmin() {
     
     const user = await prisma.user.create({
       data: {
-        name: 'RPL Admin',
-        email: 'admin.rpl@itats.com',
+        name: 'Admin RPL',
+        email: 'lab.rpl@itats.com',
         password: hashedPassword,
-        role: Role.ADMIN
+        role: 'ADMIN'
       }
     });
 

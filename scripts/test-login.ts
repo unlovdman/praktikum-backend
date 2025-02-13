@@ -7,7 +7,7 @@ import * as jwt from 'jsonwebtoken';
 dotenv.config();
 
 // Use the connection pooler URL with SSL
-process.env.DATABASE_URL = "postgresql://postgres:Ymp1nkx0c97xnp6T@db.crtwwcwiokhxzjcuvkwd.supabase.co:5432/postgres?pgbouncer=true&connection_limit=1&sslmode=require&pool_timeout=0";
+process.env.DATABASE_URL = "postgresql://postgres:Ymp1nkx0c97xnp6T@db.crtwwcwiokhxzjcuvkwd.supabase.co:5432/postgres?sslmode=require&connection_limit=1&pool_timeout=0";
 
 async function testLogin() {
   const prisma = new PrismaClient();
@@ -18,7 +18,7 @@ async function testLogin() {
     await prisma.$connect();
     console.log('✓ Database connection successful');
 
-    const email = 'admin.rpl@itats.com';
+    const email = 'lab.rpl@itats.com';
     const password = 'labrpljayajaya';
 
     console.log('\n2. Finding user...');
