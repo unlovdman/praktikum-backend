@@ -504,7 +504,9 @@ app.get('/swagger', (req, res) => {
     <head>
         <meta charset="UTF-8">
         <title>Praktikum Management API Documentation</title>
-        <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui.min.css">
+        <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@4.5.0/swagger-ui.css" />
+        <link rel="icon" type="image/png" href="https://unpkg.com/swagger-ui-dist@4.5.0/favicon-32x32.png" sizes="32x32" />
+        <link rel="icon" type="image/png" href="https://unpkg.com/swagger-ui-dist@4.5.0/favicon-16x16.png" sizes="16x16" />
         <style>
             body { margin: 0; }
             .swagger-ui .topbar { display: none; }
@@ -512,8 +514,8 @@ app.get('/swagger', (req, res) => {
     </head>
     <body>
         <div id="swagger-ui"></div>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-bundle.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-standalone-preset.js"></script>
+        <script src="https://unpkg.com/swagger-ui-dist@4.5.0/swagger-ui-bundle.js" crossorigin></script>
+        <script src="https://unpkg.com/swagger-ui-dist@4.5.0/swagger-ui-standalone-preset.js" crossorigin></script>
         <script>
             window.onload = function() {
                 window.ui = SwaggerUIBundle({
@@ -529,7 +531,8 @@ app.get('/swagger', (req, res) => {
                     ],
                     layout: "StandaloneLayout",
                     persistAuthorization: true,
-                    tryItOutEnabled: true
+                    tryItOutEnabled: true,
+                    defaultModelsExpandDepth: -1
                 });
             };
         </script>
@@ -537,6 +540,7 @@ app.get('/swagger', (req, res) => {
     </html>
   `
   res.setHeader('Content-Type', 'text/html')
+  res.setHeader('Cache-Control', 'no-cache')
   res.send(html)
 })
 

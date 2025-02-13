@@ -14,7 +14,7 @@
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept, Authorization",
         "Access-Control-Allow-Credentials": "true",
-        "cache-control": "public, max-age=0, must-revalidate"
+        "cache-control": "no-store, no-cache, must-revalidate"
       }
     },
     {
@@ -24,7 +24,7 @@
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept, Authorization",
         "Access-Control-Allow-Credentials": "true",
-        "cache-control": "public, max-age=0, must-revalidate"
+        "cache-control": "no-store, no-cache, must-revalidate"
       }
     },
     {
@@ -35,12 +35,12 @@
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept, Authorization",
         "Access-Control-Allow-Credentials": "true",
-        "cache-control": "public, max-age=0, must-revalidate"
+        "cache-control": "no-store, no-cache, must-revalidate"
       }
     }
   ],
   "env": {
     "NODE_ENV": "production",
-    "DATABASE_URL": "postgres://postgres:Ymp1nkx0c97xnp6T@db.crtwwcwiokhxzjcuvkwd.supabase.co:5432/postgres?pgbouncer=true&connection_limit=1&pool_timeout=0&ssl=true"
+    "DATABASE_URL": "postgres://postgres:Ymp1nkx0c97xnp6T@db.crtwwcwiokhxzjcuvkwd.supabase.co:6543/postgres?pgbouncer=true&ssl=require&connection_limit=1"
   }
 } 
