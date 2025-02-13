@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = "postgresql://postgres:Ymp1nkx0c97xnp6T@db.crtwwcwiokhxzjcuvkwd.supabase.co:5432/postgres?sslmode=require"
+  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -12,7 +12,7 @@ model User {
   name      String
   email     String      @unique
   password  String
-  role      Role        @default(PRAKTIKAN)
+  role      String      @default("PRAKTIKAN")
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
   
@@ -123,10 +123,4 @@ model Nilai {
   userId          String
   pertemuan       Pertemuan @relation(fields: [pertemuanId], references: [id])
   pertemuanId     String
-}
-
-enum Role {
-  ADMIN
-  ASISTEN_LAB
-  PRAKTIKAN
 } 
