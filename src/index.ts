@@ -504,7 +504,7 @@ app.get('/swagger', (req, res) => {
     <head>
         <meta charset="UTF-8">
         <title>Praktikum Management API Documentation</title>
-        <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@5.11.0/swagger-ui.css">
+        <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui.min.css">
         <style>
             body { margin: 0; }
             .swagger-ui .topbar { display: none; }
@@ -512,8 +512,8 @@ app.get('/swagger', (req, res) => {
     </head>
     <body>
         <div id="swagger-ui"></div>
-        <script src="https://unpkg.com/swagger-ui-dist@5.11.0/swagger-ui-bundle.js"></script>
-        <script src="https://unpkg.com/swagger-ui-dist@5.11.0/swagger-ui-standalone-preset.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-bundle.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-standalone-preset.js"></script>
         <script>
             window.onload = function() {
                 window.ui = SwaggerUIBundle({
@@ -528,7 +528,8 @@ app.get('/swagger', (req, res) => {
                         SwaggerUIBundle.plugins.DownloadUrl
                     ],
                     layout: "StandaloneLayout",
-                    persistAuthorization: true
+                    persistAuthorization: true,
+                    tryItOutEnabled: true
                 });
             };
         </script>
