@@ -1,4 +1,5 @@
-import { Role } from '@prisma/client'
+// Define role type as string literal
+export type Role = 'ADMIN' | 'ASISTEN_LAB' | 'PRAKTIKAN';
 
 export interface User {
   id: string

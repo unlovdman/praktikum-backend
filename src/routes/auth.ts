@@ -1,9 +1,9 @@
 import { Router, Response } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { Role, PrismaClient, Prisma } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import { TypedRequestBody } from '../types/express';
-import { RegisterRequest, LoginRequest, User } from '../types/models';
+import { RegisterRequest, LoginRequest, User, Role } from '../types/models';
 
 const router = Router();
 
@@ -42,6 +42,11 @@ router.post('/register', async (req: TypedRequestBody<RegisterRequest>, res: Res
       return res.status(400).json({ error: 'User already exists' });
     }
 
+    // Validate role
+    if (!['ADMIN', 'ASISTEN_LAB', 'PRAKTIKAN'].includes(role)) {
+      return res.status(400).json({ error: 'Invalid role' });
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await prisma.user.create({
@@ -49,7 +54,7 @@ router.post('/register', async (req: TypedRequestBody<RegisterRequest>, res: Res
         name,
         email,
         password: hashedPassword,
-        role: role as Role
+        role
       }
     });
 
