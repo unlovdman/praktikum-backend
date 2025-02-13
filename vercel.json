@@ -41,6 +41,6 @@
   ],
   "env": {
     "NODE_ENV": "production",
-    "DATABASE_URL": "postgres://postgres:Ymp1nkx0c97xnp6T@db.crtwwcwiokhxzjcuvkwd.supabase.co:6543/postgres?pgbouncer=true&ssl=require&connection_limit=1"
+    "DATABASE_URL": "postgresql://postgres:Ymp1nkx0c97xnp6T@db.crtwwcwiokhxzjcuvkwd.supabase.co:5432/postgres?schema=public&connection_limit=1&pool_timeout=0&sslmode=require"
   }
 } 

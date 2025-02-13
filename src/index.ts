@@ -20,19 +20,27 @@ const prisma = new PrismaClient({
   log: ['query', 'info', 'warn', 'error'],
   datasources: {
     db: {
-      url: process.env.DATABASE_URL
+      url: process.env.DATABASE_URL?.replace('postgres://', 'postgresql://') || ''
     }
   }
 })
 
 // Test database connection on startup with detailed error logging
-prisma.$connect()
-  .then(() => console.log('Database connection successful'))
-  .catch((error) => {
-    console.error('Database connection error:', error);
-    console.error('Connection URL:', process.env.DATABASE_URL);
-    console.error('Full error details:', JSON.stringify(error, null, 2));
-  })
+async function connectDatabase() {
+  try {
+    await prisma.$connect()
+    console.log('Database connection successful')
+  } catch (error) {
+    console.error('Database connection error:', {
+      error,
+      url: process.env.DATABASE_URL?.replace(/:[^:@]*@/, ':****@') // Hide password in logs
+    })
+    // Don't exit the process, just log the error
+    console.error('Full error details:', JSON.stringify(error, null, 2))
+  }
+}
+
+connectDatabase()
 
 const app = express()
 
