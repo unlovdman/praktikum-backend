@@ -41,6 +41,8 @@
   ],
   "env": {
     "NODE_ENV": "production",
-    "DATABASE_URL": "postgresql://postgres:Ymp1nkx0c97xnp6T@db.crtwwcwiokhxzjcuvkwd.supabase.co:6543/postgres?pgbouncer=true&connection_limit=1&pool_timeout=0"
+    "SUPABASE_URL": "https://crtwwcwiokhxzjcuvkwd.supabase.co",
+    "SUPABASE_SERVICE_ROLE_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNydHd3Y3dpb2toeHpqY3V2a3dkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTcwODc1NTYwMCwiZXhwIjoyMDI0MzMxNjAwfQ.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNydHd3Y3dpb2toeHpqY3V2a3dkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTcwODc1NTYwMCwiZXhwIjoyMDI0MzMxNjAwfQ",
+    "SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNydHd3Y3dpb2toeHpqY3V2a3dkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDg3NTU2MDAsImV4cCI6MjAyNDMzMTYwMH0.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNydHd3Y3dpb2toeHpqY3V2a3dkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDg3NTU2MDAsImV4cCI6MjAyNDMzMTYwMH0"
   }
 } 
