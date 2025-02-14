@@ -41,7 +41,7 @@
   ],
   "env": {
     "NODE_ENV": "production",
-    "DATABASE_URL": "postgres://postgres:Ymp1nkx0c97xnp6T@db.crtwwcwiokhxzjcuvkwd.supabase.co:5432/postgres?schema=public&sslmode=require",
+    "DATABASE_URL": "postgres://postgres:Ymp1nkx0c97xnp6T@db.crtwwcwiokhxzjcuvkwd.supabase.co:6543/postgres?pgbouncer=true&schema=public&connection_limit=1&pool_timeout=20&sslmode=require",
     "JWT_SECRET": "253dacd5af0b3612ea1d45420d494ed260a9dcb93aaf9b8ac8aa1de2c51a5f6e",
     "SUPABASE_URL": "https://crtwwcwiokhxzjcuvkwd.supabase.co",
     "SUPABASE_SERVICE_ROLE_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNydHd3Y3dpb2toeHpqY3V2a3dkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTczOTMyNzg0NSwiZXhwIjoyMDU0OTAzODQ1fQ.aqcd98v_0HlEhvjXAvBBDVzxUvsnqo-1sx6y9i6OpPo",
